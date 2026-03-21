@@ -25,9 +25,22 @@ import torch.optim as optim
 
 
 class QNetwork(nn.Module):
-    # TODO: Implement the QNetwork
+    """
+    Red neuronal sencilla y completamente conectada (MLP) que aproxima la función Q.
+    Mapea el estado actual a los valores Q esperados para cada acción posible.
+    """
+    def __init__(self, state_dim: int, action_dim: int, hidden_dim: int = 128) -> None:
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Linear(state_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, action_dim)
+        )
 
-    pass
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.network(x)
 
 
 # ── Replay buffer ────────────────────────────────────────────────────
@@ -235,12 +248,13 @@ class DQNAgent:
             data["env_id"],
             lr=data["lr"],
             gamma=data["gamma"],
-            epsilon_start=data["epsilon"],
+            epsilon_start=data["epsilon_start"], # Corregido para cargar el valor correcto
             epsilon_end=data["epsilon_end"],
             epsilon_decay=data["epsilon_decay"],
             batch_size=data["batch_size"],
             target_update_freq=data["target_update_freq"],
         )
+        agent.epsilon = data["epsilon"] # Restaurar el epsilon actual del entrenamiento
         agent.q_net.load_state_dict(data["q_net_state"])
         agent.target_net.load_state_dict(data["target_net_state"])
         agent.optimizer.load_state_dict(data["optimizer_state"])
@@ -259,3 +273,4 @@ class DQNAgent:
             f"  Target update     : every {self.target_update_freq} episodes\n"
             f"  Device            : {self.device}"
         )
+
