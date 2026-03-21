@@ -28,11 +28,11 @@ class QLearningAgent:
         env_id: str,
         *,
         n_bins: int = 10,
-        lr: float = 0.1,
-        gamma: float = 0.99,
+        lr: float = 0.01,
+        gamma: float = 0.999,
         epsilon_start: float = 1.0,
-        epsilon_end: float = 0.01,
-        epsilon_decay: float = 0.9995,
+        epsilon_end: float = 0.001,
+        epsilon_decay: float = 0.99995,
     ) -> None:
         self.env_id = env_id
         self.n_bins = n_bins
@@ -105,6 +105,7 @@ class QLearningAgent:
                 action = self.select_action(state)
                 # Take action
                 next_obs, reward, terminated, truncated, _ = env.step(action)
+                done=terminated or truncated
                 # Update state
                 next_state = self.discretize(next_obs)
                 # Update Q-table
